@@ -6,11 +6,13 @@
 #include <type_traits>
 #include <sstream>
 #include <climits>
+#include <map>
 
 #include "pair.hpp"
 #include "vector.hpp"
 #include "stack.hpp"
 #include "iterator.hpp"
+#include "RedBlackTree.hpp"
 
 // template<class T>
 // void info_std(std::vector<T> v) {
@@ -160,7 +162,18 @@ int main() {
         // ft::vector<char> alloc;
         // std::cout << alloc.max_size() << std::endl;
     }
-    ft::vector<int> v(5, 4);
-    std::reverse(v.begin(), v.end());
-}
+    {
+        Node<int> *root = nullptr;
 
+        Node<int> *n = new Node<int>(15);
+        Node<int> *n1 = new Node<int>(14);
+        Node<int> *n2 = new Node<int>(18);
+        Node<int> *n3 = new Node<int>(17);
+
+        root = BstInsert(root, n);
+        root = BstInsert(root, n1);
+        root = BstInsert(root, n2);
+        root = BstInsert(root, n3);
+        std::cout << root->val << std::endl;
+    }
+}
