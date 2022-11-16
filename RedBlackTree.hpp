@@ -6,7 +6,7 @@
 /*   By: alaajili <alaajili@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/10 16:47:26 by alaajili          #+#    #+#             */
-/*   Updated: 2022/11/12 16:47:14 by alaajili         ###   ########.fr       */
+/*   Updated: 2022/11/12 19:32:49 by alaajili         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ class RedBlackTree
 public:
     typedef Node<T>*    nodeptr;
 
-private:
+//private:
     nodeptr root;
 
 
@@ -83,7 +83,7 @@ public:
             n->left->parent = n;
         left->parent = n->parent;
         if (n->parent == nullptr)
-            root == left;
+            root = left;
         else if (n == n->parent->left)
             n->parent->left = left;
         else
@@ -93,12 +93,13 @@ public:
     } // right rotate
 
     void insert( const T& val ) {
-        nodeptr n = new nodeptr(val);
-        root = BstInsert(root);
+        nodeptr n = new Node<T>(val);
+
+        root = BstInsert(root, n);
         nodeptr parent = nullptr;
         nodeptr grand_parent = nullptr;
 
-        while (n->parent->color == RED) {
+        while (n->parent && n->parent->color == RED) {
             parent = n->parent;
             grand_parent = parent->parent;
 
@@ -163,9 +164,10 @@ public:
         b->parent = a->parent;
     } // transplant
 
-    void getMinValue( nodeptr n ) {
+    nodeptr getMinValue( nodeptr n ) {
         while (n->left != nullptr)
-            n
+            n = n->left;
+        return n;
     } // get minimum value of a right-subtree
 
     void deleteNode( const T& val ) {
@@ -184,10 +186,13 @@ public:
         else {
             y = getMinValue(dn->right); // assign min val of right sub-tree into y
             originColor = y->color;
-            x = y->rihgt;
-            if (y->parent == nd)
-                x->parent = y;
-            else {
+            x = y->right;
+            // if (x->parent == y)
+            //     std::cout << "WAAAAH" << std::endl;
+            // if (y->parent == dn)
+            //     x->parent = y;
+            if (y->parent != dn) {
+                std::cout << "HERE" << std::endl;
                 transplant(y, y->right);
                 y->right = dn->right;
                 y->right->parent = y;
@@ -197,27 +202,70 @@ public:
             y->left->parent = y;
             y->color = dn->color;
         }
-        delete(dn);
+        delete dn;
         if (originColor == BLACK) { deleteFix(x); }
     } // delete a node
 
     
-    // void deleteFix(nodeptr x) {
-    //     nodeptr w;
+    void deleteFix(nodeptr x) {
+        nodeptr w;
         
-    //     while ( x != root && x->color == BLACK ) {
-    //         if ( x == x->parent->left ) {
-    //             w = x->parent->right;
-    //             if (w->color == RED) {
-    //                 w->color = BLACK;
-    //                 x->parent->color = RED;
-    //                 leftRotate(x->parent);
-    //                 w = x->parent->right;
-    //             }
-    //         }
-    //     }
-    
-    // }
+        while ( x != root && x->color == BLACK ) {
+            if ( x == x->parent->left ) {
+                w = x->parent->right;
+                if ( w->color == RED ) {
+                    w->color = BLACK;
+                    x->parent->color = RED;
+                    leftRotate(x->parent);
+                    w = x->parent->right;
+                }
+                if ( w->left->color == BLACK && w->right->color == BLACK ) {
+                    w->color = RED;
+                    x = x->parent;
+                }
+                else if ( w->right->color == BLACK ) {
+                    w->left->color = BLACK;
+                    w->color = RED;
+                    rightRotate(w);
+                    w = x->parent->right;
+                }
+                else {
+                    w->color = x->parent->color;
+                    x->parent->color = BLACK;
+                    w->right->color = BLACK;
+                    leftRotate(x->parent);
+                    x = root;
+                }
+            }
+            else {
+                w = x->parent->left;
+                if (w->color == RED) {
+                    w->color = BLACK;
+                    x->parent->color = RED;
+                    rightRotate(x->parent);
+                    w = x->parent->left;
+                }
+                if ( w->left->color == BLACK && w->right->color == BLACK ) {
+                    w->color = RED;
+                    x = x->parent;
+                }
+                else if ( w->left->color == BLACK ) {
+                    w->right->color = BLACK;
+                    w->color = RED;
+                    leftRotate(w);
+                    w = x->parent->left;
+                }
+                else {
+                    w->color = x->parent->color;
+                    x->parent->color = BLACK;
+                    w->left->color = BLACK;
+                    rightRotate(x->parent);
+                    x = root;
+                }
+            }
+        }
+        x->color = BLACK;
+    } // fix rbt after deletion
 
 };
 

@@ -6,7 +6,7 @@
 /*   By: alaajili <alaajili@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/20 20:07:43 by alaajili          #+#    #+#             */
-/*   Updated: 2022/11/07 19:10:30 by alaajili         ###   ########.fr       */
+/*   Updated: 2022/11/15 18:11:14 by alaajili         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -213,9 +213,9 @@ template <class Iterator>
 
 
 template<class InputIterator>
-  typename iterator_traits<InputIterator>::difference_type
+  typename iterator_traits<InputIterator>::size_type
     distance (InputIterator first, InputIterator last) {
-        ptrdiff_t diff = 0;
+        size_t diff = 0;
         while(first != last) { ++first; ++diff; }
         return diff;
     }

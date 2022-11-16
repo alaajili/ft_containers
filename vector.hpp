@@ -6,7 +6,7 @@
 /*   By: alaajili <alaajili@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/06 14:45:53 by alaajili          #+#    #+#             */
-/*   Updated: 2022/11/07 03:30:54 by alaajili         ###   ########.fr       */
+/*   Updated: 2022/11/16 02:07:22 by alaajili         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,9 +65,10 @@ public:
       vector(InputIterator first, InputIterator last,
         typename enable_if<!is_integral<InputIterator>::value, InputIterator>::type = InputIterator(),
           const allocator_type& alloc = allocator_type()) :
-            __alloc_(alloc) , __size_(0), __capacity_(0), __begin_(nullptr), __end_(nullptr) {
-                for (; first != last; ++first) {
-                  push_back(*first);
+            __alloc_(alloc) , __size_(std::distance(first, last)), __capacity_(__size_), __begin_(nullptr), __end_(nullptr) {
+                __begin_ = __end_ = __alloc_.allocate(__capacity_);
+                for (; first != last; ++first, ++__end_) {
+                  __alloc_.construct(__end_, *first);
                 }
       } //range constructor
 
@@ -172,17 +173,25 @@ public:
       void assign(InputIterator first, InputIterator last,
         typename enable_if<!is_integral<InputIterator>::value, InputIterator>::type = InputIterator()) {
           clear();
-          for (; first != last; ++first) {
-            push_back(*first);
+          __size_ = last - first;
+          if ( __size_ > __capacity_ ) {
+            if ( __begin_ ) { __alloc_.deallocate(__begin_, __capacity_); }
+            __capacity_ = __size_;
+            __begin_ = __end_ = __alloc_.allocate(__capacity_);
+          }
+          for (; first != last; ++first, __end_++) {
+            __alloc_.construct(__end_, *first);
           }
       } // range_assign
     
     void assign(size_type n, const value_type& val) {
       clear();
-      if (__begin_ != nullptr ) { __alloc_.deallocate(__begin_, __capacity_); }
       __size_ = n;
-      __capacity_ = n;
-      if (n != 0) { __begin_ = __end_ = __alloc_.allocate(n); }
+      if (n > __capacity_) { 
+        if (__begin_ ) { __alloc_.deallocate(__begin_, __capacity_); }
+        __begin_ = __end_ = __alloc_.allocate(n);
+        __capacity_ = n;
+      }
       for (size_type i = 0; i < __size_; i++, __end_++) { __alloc_.construct(__end_, val); }
     } // fill_assign
 
@@ -204,28 +213,58 @@ public:
         size_type diff = pos.base() - __begin_;
         if (__capacity_ == 0) { reserve(1); }
         else if (__capacity_ == __size_) { reserve(__capacity_ * 2); }
-        if (diff <= __size_) { __alloc_.construct(__end_, val); }
+        __alloc_.construct(__end_, val);
         std::copy_backward(begin() + diff, end(), end() + 1);
-        __alloc_.destroy(__begin_ + diff);
-        __alloc_.construct(__begin_ + diff, val);
+        *(__begin_ + diff) = val;
         __size_++, __end_++;
         return (begin() + diff);
     } // insert one element
-
+    
     void insert(iterator pos, size_type n, const value_type& val) {
-        difference_type diff = pos.base() - __begin_;
-        if (n > __capacity_) { reserve(n); }
-        else if (__capacity_ < __size_ + n) { reserve(__capacity_ * 2); }
-        for (size_type i = 0; i < n; ++i) { insert(iterator(__begin_ + diff + i), val); }
-    } // fill_insert
+      difference_type diff = pos.base() - __begin_;
+      if (__size_ + n > __capacity_) {
+        if (__size_ + n <= __capacity_ * 2) { reserve(__capacity_*2); }
+        else { reserve(__size_ + n); }
+      }
+      for (size_type i = 0; i < n; i++) { __alloc_.construct(__end_ + i, val); }
+      std::copy_backward(begin() + diff, end(), end()+n);
+      for (size_type i = 0; i < n; i++) { *(__begin_ + diff + i) = val; }
+      __size_ += n, __end_ += n;
+    }
+    
+    // void insert(iterator pos, size_type n, const value_type& val) {
+    //     difference_type diff = pos.base() - __begin_;
+    //     if (__size_ + n > __capacity_) {
+    //       if (__size_ + n <= __capacity_ * 2) { reserve(__capacity_*2); }
+    //       else { reserve(__size_ + n); }
+    //     }
+    //     for (size_type i = 0; i < n; i++) { __alloc_.construct(__end_ + i, val); }
+    //     std::copy_backward(begin() + diff, end(), end()+n);
+    //     for (size_type i = 0; i < n; ++i) {
+    //       __alloc_.destroy(__begin_ + diff + i);
+    //       __alloc_.construct(__begin_+ diff + i, val);
+
+    //       // insert(iterator(__begin_ + diff + i), val);
+    //     }
+    //     __size_ += n, __end_ += n;
+    // } // fill_insert
 
     template<class InputIterator>
       void insert(iterator pos, InputIterator first, InputIterator last,
         typename enable_if<!is_integral<InputIterator>::value, InputIterator>::type = InputIterator()) {
           difference_type diff = pos.base() - __begin_;
-          for (size_type i = 0; first != last; i++, first++) {
-            insert(iterator(__begin_ + diff + i), *first);
+          size_type n = std::distance(first, last);
+          if (__size_ + n > __capacity_) {
+            if (__size_ + n <= __capacity_ * 2) { reserve(__capacity_*2); }
+            else { reserve(__size_ + n); }
           }
+          for (size_type i = 0; i < n; i++) { __alloc_.construct(__end_ + i, *first); }
+          std::copy_backward(begin() + diff, end(), end()+n);
+          for (size_type i = 0; i < n; ++i, ++first) { *(__begin_ + diff + i) = *first; }
+          __size_ += n, __end_ += n;
+          // for (size_type i = 0; first != last; i++, first++) {
+          //   insert(iterator(__begin_ + diff + i), *first);
+          // }
       } //range_insert
 
     iterator erase(iterator pos) {
@@ -242,9 +281,11 @@ public:
     } // erase elements
 
     void swap(vector& x) {
-        vector tmp = x;
-        x = *this;
-        *this = tmp;
+        std::swap(__size_, x.__size_);
+        std::swap(__capacity_, x.__capacity_);
+        std::swap(__begin_, x.__begin_);
+        std::swap(__end_, x.__end_);
+        std::swap(__alloc_, x.__alloc_);
     } // swap content
 
     void clear() {
@@ -293,9 +334,7 @@ template <class T, class Alloc>
 
 template <class T, class Alloc>
   void swap (vector<T,Alloc>& x, vector<T,Alloc>& y) {
-    vector<T,Alloc> tmp(x);
-    x = y;
-    y = tmp;
+    x.swap(y);
   } // swap
 
 } //ft namespace
