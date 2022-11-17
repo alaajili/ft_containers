@@ -6,7 +6,7 @@
 /*   By: alaajili <alaajili@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/10 16:47:26 by alaajili          #+#    #+#             */
-/*   Updated: 2022/11/12 19:32:49 by alaajili         ###   ########.fr       */
+/*   Updated: 2022/11/17 02:15:45 by alaajili         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,23 +18,24 @@
 #define BLACK 0
 #define RED 1
 
-template<class T>
+template<class key_type, class value>
 struct Node {
-    T val;
+    key_type key;
+    value val;
     Node* parent;
     Node* left;
     Node* right;
     int color;
 
-    Node(T val) :
-        val(val), parent(nullptr), left(nullptr), right(nullptr), color(RED) {}
+    Node(key_type key, value val) :
+        key(key), val(val), parent(nullptr), left(nullptr), right(nullptr), color(RED) {}
 };
 
-template<class T, class C = std::less<T> >
-Node<T>* BstInsert(Node<T>* root, Node<T>* n, C c = C()) {
+template<class K, class T, class C = std::less<K> >
+Node<K,T>* BstInsert(Node<K,T>* root, Node<K,T>* n, C c = C()) {
     if (root == nullptr)
         return n;
-    if (c(n->val, root->val)) {
+    if (c(n->key, root->key)) {
         root->left = BstInsert(root->left, n);
         root->left->parent = root;
     }
@@ -45,11 +46,11 @@ Node<T>* BstInsert(Node<T>* root, Node<T>* n, C c = C()) {
     return root;
 }
 
-template<class T, class Compare>
+template<class key_type, class value, class Compare>
 class RedBlackTree
 {
 public:
-    typedef Node<T>*    nodeptr;
+    typedef Node<key_type, value>*    nodeptr;
 
 //private:
     nodeptr root;
@@ -92,8 +93,8 @@ public:
         n->parent = left;
     } // right rotate
 
-    void insert( const T& val ) {
-        nodeptr n = new Node<T>(val);
+    void insert( const key_type& key, const value& val ) {
+        nodeptr n = new Node<key_type, value>(key, val);
 
         root = BstInsert(root, n);
         nodeptr parent = nullptr;

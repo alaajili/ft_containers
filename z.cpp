@@ -162,38 +162,45 @@ int main() {
         // ft::vector<char> alloc;
         // std::cout << alloc.max_size() << std::endl;
     }
-    // {
-    //     RedBlackTree<int, std::less<int> > tr;
-
-    //     tr.insert(4);
-    //     tr.insert(7);
-    //     tr.insert(2);
-    //     tr.insert(1);
-    //     tr.insert(3);
-    //     tr.deleteNode(2);
-
-
-    //     std::cout << tr.root->left->left->color << std::endl;
-    // }
-    // {
-    //     std::map<int, std::string> f;
-    //     f[1] = "c";
-    //     f[2] = "b";
-    //     f[3] = "a";
-    //     f.insert(std::pair<int, std::string>(0, "hey"));
-    //     std::map<int, std::string>::iterator it;
-    //     for (it = f.begin(); it != f.end(); ++it)
-    //         std::cout << it->second << std::endl;
-
-    //     std::vector<int> v1,v2;
-    //     v1.swap(v2);
-    // } 
     {
-        std::vector<int> v(5, 4);
-        std::vector<int> v2(4, 5);
-        // v.assign(v2.begin(), v2.end());
-        v.swap(v2);
-        std::cout << v2.size() << std::endl;
-        std::cout << v2.capacity() << std::endl;
+        RedBlackTree<int, int, std::less<int> > tr;
+
+        tr.insert(5, 4);
+        tr.insert(2, 7);
+        tr.insert(1 ,2);
+        tr.insert(3 ,1);
+        tr.insert(4, 3);
+        //tr.deleteNode(2);
+
+
+        std::cout << tr.root->val << std::endl;
     }
+    {
+        // std::map<int, std::string> f;
+        // f[1] = "c";
+        // f[2] = "b";
+        // f[3] = "a";
+        // f.insert(std::pair<int, std::string>(0, "hey"));
+        // std::map<int, std::string>::iterator it;
+        // for (it = f.begin(); it != f.end(); ++it)
+        //     std::cout << it->second << std::endl;
+
+        // std::vector<int> v1,v2;
+        // v1.swap(v2);
+    } 
+    // {
+    //     ft::vector<int> v(4, 5);
+    //     //std::vector<int> v2(4, 5);
+    //     // v.assign(v2.begin(), v2.end());
+    //     // v.swap(v2);
+    //     // std::cout << v2.size() << std::endl;
+    //     // std::cout << v2.capacity() << std::endl;
+    //     v.insert(v.begin(), v.begin(), v.end());
+    //     ft::vector<int>::iterator it = v.begin();
+    //     for (; it != v.end(); ++it)
+    //         std::cout << *it << " ";
+    //     std::cout << std::endl;
+    //     std::cout << v.size() << std::endl;
+    //     std::cout << v.capacity() << std::endl;
+    // }
 }

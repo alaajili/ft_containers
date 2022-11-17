@@ -6,7 +6,7 @@
 /*   By: alaajili <alaajili@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/06 14:45:53 by alaajili          #+#    #+#             */
-/*   Updated: 2022/11/16 02:07:22 by alaajili         ###   ########.fr       */
+/*   Updated: 2022/11/16 23:12:57 by alaajili         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -210,25 +210,37 @@ public:
     } // pop_back
 
     iterator insert(iterator pos, const value_type& val) {
-        size_type diff = pos.base() - __begin_;
-        if (__capacity_ == 0) { reserve(1); }
-        else if (__capacity_ == __size_) { reserve(__capacity_ * 2); }
-        __alloc_.construct(__end_, val);
-        std::copy_backward(begin() + diff, end(), end() + 1);
-        *(__begin_ + diff) = val;
-        __size_++, __end_++;
-        return (begin() + diff);
+      size_type diff = pos.base() - __begin_;
+      if (__capacity_ == 0) { reserve(1); }
+      else if (__capacity_ == __size_) { reserve(__capacity_ * 2); }
+
+      pointer base = __begin_ + diff;
+      
+      for (pointer p = __end_-1; p >= base; --p) {
+        __alloc_.construct(p + 1, *(p));
+        __alloc_.destroy(p);
+      }
+      __alloc_.construct(base, val);
+      __size_++, __end_++;
+      return (begin() + diff);
     } // insert one element
     
+
+    
+    
     void insert(iterator pos, size_type n, const value_type& val) {
+      if (n == 0) return;
       difference_type diff = pos.base() - __begin_;
       if (__size_ + n > __capacity_) {
         if (__size_ + n <= __capacity_ * 2) { reserve(__capacity_*2); }
         else { reserve(__size_ + n); }
       }
-      for (size_type i = 0; i < n; i++) { __alloc_.construct(__end_ + i, val); }
-      std::copy_backward(begin() + diff, end(), end()+n);
-      for (size_type i = 0; i < n; i++) { *(__begin_ + diff + i) = val; }
+      pointer base = __begin_ + diff;
+      for (pointer p = __end_ - 1; p >= base; --p) {
+        __alloc_.construct(p + n, *(p));
+        __alloc_.destroy(p);
+      }
+      for (size_type i = 0; i < n; ++i) { __alloc_.construct(base+i, val); }
       __size_ += n, __end_ += n;
     }
     
@@ -254,22 +266,30 @@ public:
         typename enable_if<!is_integral<InputIterator>::value, InputIterator>::type = InputIterator()) {
           difference_type diff = pos.base() - __begin_;
           size_type n = std::distance(first, last);
+          if (n == 0) return;
+          vector x(first, last);
           if (__size_ + n > __capacity_) {
             if (__size_ + n <= __capacity_ * 2) { reserve(__capacity_*2); }
             else { reserve(__size_ + n); }
           }
-          for (size_type i = 0; i < n; i++) { __alloc_.construct(__end_ + i, *first); }
-          std::copy_backward(begin() + diff, end(), end()+n);
-          for (size_type i = 0; i < n; ++i, ++first) { *(__begin_ + diff + i) = *first; }
+          pointer base = __begin_ + diff;
+          for (pointer p = __end_ - 1; p >= base; --p) {
+            __alloc_.construct(p + n, *(p));
+            __alloc_.destroy(p);
+          }
+          for (size_type i = 0; i < n; ++i) { __alloc_.construct(base+i, x[i]); }
           __size_ += n, __end_ += n;
-          // for (size_type i = 0; first != last; i++, first++) {
-          //   insert(iterator(__begin_ + diff + i), *first);
-          // }
       } //range_insert
 
     iterator erase(iterator pos) {
-        std::copy(pos + 1, end(), pos);
-        pop_back();
+        // std::copy(pos + 1, end(), pos);
+        // pop_back();
+        pointer p = pos.base();
+        for (;p != __end_ - 1; ++p) {
+          *p = *(p + 1);
+        }
+        __alloc_.destroy(p);
+        __end_--, __size_--;
         return pos;
     } // erase one element
 
