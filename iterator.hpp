@@ -6,7 +6,7 @@
 /*   By: alaajili <alaajili@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/20 20:07:43 by alaajili          #+#    #+#             */
-/*   Updated: 2022/11/15 18:11:14 by alaajili         ###   ########.fr       */
+/*   Updated: 2022/11/21 00:31:46 by alaajili         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -219,6 +219,95 @@ template<class InputIterator>
         while(first != last) { ++first; ++diff; }
         return diff;
     }
+
+
+
+template<class nodeptr, class value_type>
+class TreeIterator {
+
+    
+public:
+    typedef typename ft::iterator_traits<value_type*>::difference_type  difference_type;
+    typedef typename ft::iterator_traits<value_type*>::pointer          pointer;
+    typedef typename ft::iterator_traits<value_type*>::reference        reference;
+    typedef std::bidirectional_iterator_tag                             iterator_category;
+
+
+//private:
+    nodeptr __node_;
+
+public:
+    TreeIterator() : __node_(nullptr) {}
+    explicit TreeIterator(const nodeptr& n) : __node_(n) {} // initialization
+
+    // template<class I>
+    // TreeIterator(const TreeIterator<I>& it) : __node_(it.base()) {} // copy
+
+
+nodeptr base() const { return __node_; } // base
+
+    /*          operators           */
+reference operator*() const { return __node_->val; }
+pointer operator->() const { return &(operator*()); }
+
+
+TreeIterator& operator++() {
+    nodeptr p;
+    if (__node_->right ) {
+        __node_ = __node_->right;
+        while ( __node_->left )
+            __node_ = __node_->left;
+    }
+    else {
+        p = __node_->parent;
+        while ( p && __node_ == p->right ) {
+            __node_ = p;
+            p = p->parent;
+        }
+        __node_ = p;
+    }
+    return *this;
+}
+
+TreeIterator operator++(int) {
+    TreeIterator t = *this;
+    ++(*this);
+    return t;
+}
+
+TreeIterator& operator--() {
+    nodeptr p;
+    if ( __node_->left ) {
+        __node_ = __node_->left;
+        while ( __node_->right )
+            __node_ = __node_->right;
+    }
+    else {
+        p = __node_->parent;
+        while ( p && __node_ == p->left ) {
+            __node_ = p;
+            p = p->parent;
+        }
+        __node_ = p;
+    }
+    return *this;
+}
+
+TreeIterator operator--(int) {
+    TreeIterator t = *this;
+    --(*this);
+    return t;
+}
+
+
+};
+template<class T1, class T2, class V>
+bool operator==(const TreeIterator<T1, V>& l,
+                const TreeIterator<T2, V>& r) { return l.base() == r.base(); }
+
+template<class T1, class T2, class V>
+bool operator!=(const TreeIterator<T1, V>& l,
+                const TreeIterator<T2, V>& r) { return l.base() != r.base(); }
 
 
 } // namespace ft
