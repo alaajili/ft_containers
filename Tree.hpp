@@ -6,7 +6,7 @@
 /*   By: alaajili <alaajili@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 19:11:45 by alaajili          #+#    #+#             */
-/*   Updated: 2022/11/21 01:04:19 by alaajili         ###   ########.fr       */
+/*   Updated: 2022/11/22 23:19:58 by alaajili         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #define __TREE_H__
 
 #include "iterator.hpp"
+#include "pair.hpp"
 
 enum colors { BLACK, RED };
 
@@ -37,13 +38,16 @@ template<class key_type, class value_type, class key_compare, class allocator_ty
 class Tree {
 
 public:
-    typedef Node<key_type, value_type>* nodeptr;
-    typedef value_type*                 pointer;
-    typedef const value_type*           const_pointer;
-    typedef value_type&                 reference;
-    typedef const value_type&           const_refernce;
-    typedef size_t                      size_type;
-    typedef ft::TreeIterator<nodeptr, value_type>   iterator;
+    typedef Node<key_type, value_type>*                 nodeptr;
+    typedef value_type*                                 pointer;
+    typedef const value_type*                           const_pointer;
+    typedef value_type&                                 reference;
+    typedef const value_type&                           const_refernce;
+    typedef size_t                                      size_type;
+    typedef ft::TreeIterator<nodeptr, value_type>       iterator;
+    typedef ft::TreeIterator<nodeptr, const value_type> const_iterator;
+    typedef ft::reverse_iterator<iterator>              reverse_iterator;
+    typedef ft::reverse_iterator<const_iterator>        const_reverse_iterator;
 
 //private:
     nodeptr         root;
@@ -60,13 +64,23 @@ public:
     }
     
     iterator begin() { return iterator(__begin_); }
-    
+    const_iterator begin() const { return const_iterator(__begin_); }
     
     iterator end() { return iterator(__null_); }
+    const_iterator end() const { return const_iterator(__null_); }
+
+    reverse_iterator rbegin() { return reverse_iterator(end()); }
+    const_reverse_iterator rbegin() const { return const_reverse_iterator(end()); }
+
+    reverse_iterator rend() { return reverse_iterator(begin()); }
+    const_reverse_iterator rend() const { return const_reverse_iterator(begin()); }
 
 
-
-    void insert( const key_type& key, const value_type& val ) {
+    ft::pair<iterator, bool> insert( const key_type& key, const value_type& val ) {
+        iterator it = find(key);
+        if (it != end())
+            return ft::pair<iterator, bool>(it, false);
+        
         value_type* p = __alloc_.allocate(1);
         __alloc_.construct(p, val);
         nodeptr n = new Node<key_type, value_type>(key, *p);
@@ -76,8 +90,10 @@ public:
         }
         if ( compare(n->key, __begin_->key) )
             __begin_ = n;
+        __size_++;
         root = BstInsert(root, n);
         insertFix(n);
+        return ft::pair<iterator, bool>(iterator(n), true);
     }
 
     nodeptr BstInsert( nodeptr r, nodeptr n ) {
@@ -180,7 +196,7 @@ public:
 
     iterator find( const key_type& k ) {
         nodeptr t = root;
-        
+
         while ( t && t != __null_ ) {
             if ( compare(k, t->key) )
                 t = t->left;
@@ -192,14 +208,87 @@ public:
         return this->end();
     } // find laydir lkhir
 
+    const_iterator find( const key_type& k ) const {
+        nodeptr t = root;
+        
+        while ( t && t != __null_ ) {
+            if ( compare(k, t->key) )
+                t = t->left;
+            else if ( compare(t->key, k) )
+                t = t->right;
+            else
+                return const_iterator(t);
+        }
+        return this->end();
+    }
+
 
     size_type count( const key_type& k ) const {
-        if (find() == end())
+        if (find(k) == end())
             return 0;
         return 1;
     } // count laydir lkhir
-     
+
+
+    iterator lower_bound( const key_type& k ) {
+        nodeptr t = __begin_;
+
+        while ( t != root ) {
+            if ( !compare(t->key, k) )
+                return iterator(t);
+            t = t->parent;
+        }
+        while ( t != __null_ ) {
+            if ( !compare(t->key, k) )
+                return iterator(t);
+            t = t->right;
+        }
+        return end();
+    } // lower_bound
+
+    const_iterator lower_bound( const key_type& k ) const {
+        nodeptr t = root;
+
+        while ( t != __null_ ) {
+            if ( !compare(t->key, k) )
+                return const_iterator(t);
+            t = t->right;
+        }
+        return end();
+    } // lower_bound const
+
+    iterator upper_bound( const key_type& k ) {
+        nodeptr t = root;
+
+        while ( t != __null_ ) {
+            if ( compare(k, t->key) )
+                return iterator(t);
+            t = t->right;
+        }
+        return end();
+    } // upper_bound
+
+    const_iterator upper_bound( const key_type& k ) const {
+        nodeptr t = root;
+
+        while ( t != __null_ ) {
+            if ( compare(k, t->key) )
+                return const_iterator(t);
+            t = t->right;
+        }
+        return end();
+    } // upper_bound const
+
+
+
+    bool empty() const { return (__size_ == 0); } // empty()
+
+    size_type size() const { return __size_; } // size()
+
+    size_type max_size() const { return __alloc_.max_size(); } // max_size()
+
     
+
 };
 
 

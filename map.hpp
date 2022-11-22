@@ -6,7 +6,7 @@
 /*   By: alaajili <alaajili@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/08 19:19:59 by alaajili          #+#    #+#             */
-/*   Updated: 2022/11/20 23:41:05 by alaajili         ###   ########.fr       */
+/*   Updated: 2022/11/22 17:52:25 by alaajili         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,9 @@ public:
     typedef typename allocator_type::const_pointer                  const_pointer;
     typedef Tree<key_type, value_type, key_compare, allocator_type> tree;
     typedef typename tree::iterator                                 iterator;
+    typedef typename tree::const_iterator                           const_iterator;
+    typedef typename tree::reverse_iterator                         reverse_iterator;
+    typedef typename tree::const_reverse_iterator                   const_reverse_iterator;
 
 private:
     tree __t_;
@@ -49,13 +52,45 @@ map() : __t_() {} // default constructor
 
 
 
-
+    /*          ITERATORS          */
 iterator begin() { return __t_.begin(); }
+const_iterator begin() const { return __t_.begin(); }
 
 iterator end() { return __t_.end(); }
+const_iterator end() const { return __t_.end(); }
+
+reverse_iterator rbegin() { return __t_.rbegin(); }
+const_reverse_iterator rbegin() const { return __t_.rbegin(); }
+
+reverse_iterator rend() { return __t_.rend(); }
+const_reverse_iterator rend() const { return __t_.rend(); }
 
 
-void insert( const value_type& val ) { __t_.insert(val.first, val); }
+    /*          CAPACITY        */
+bool empty() const { return __t_.empty(); }
+
+size_type size() const { return __t_.size(); }
+
+size_type max_size() const { return __t_.max_size(); }
+
+
+    /*          MODIFIERS           */
+ft::pair<iterator, bool> insert( const value_type& val ) { return __t_.insert(val.first, val); }
+
+
+
+    /*          OPERATIONS          */
+iterator find( const key_type& k ) { return __t_.find(k); }
+const_iterator find( const key_type& k ) const { return __t_.find(k); }
+
+size_type count( const key_type& k ) const { return __t_.count(k); }
+
+iterator lower_bound( const key_type& k ) { return __t_.lower_bound(k); }
+const_iterator lower_bound( const key_type& k ) const { return __t_.lower_bound(k); }
+
+iterator upper_bound( const key_type& k ) { return __t_.upper_bound(k); }
+const_iterator upper_bound( const key_type& k ) const { return __t_.upper_bound(k); }
+
 
 };
 

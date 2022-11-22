@@ -184,29 +184,40 @@ int main() {
     }
 
     {
+        typedef  std::map<int, char>::iterator iterator;
+        std::cout << "STD :\n";
+        std::map<int, char> m;
+        m.insert(std::pair<int, char>(2, 'b'));
+        m.insert(std::pair<int, char>(4, 'd'));
+        m.insert(std::pair<int, char>(1, 'a'));
+        m.insert(std::pair<int, char>(6, 'f'));
+        
+        iterator itlow = m.lower_bound(3);
+        iterator itup = m.upper_bound(1);
+        std::cout << "lower bound " << itlow->first << std::endl;
+        std::cout << "upper bound " << itup->first << std::endl;
+
+        iterator it;
+        for (it = m.begin(); it != m.end(); it++) { std::cout << it->first<< " ----> " << it->second << std::endl; }
+    }
+    std::cout << "\n";
+    {
+        typedef  ft::map<int, char>::iterator iterator;
+        std::cout << "FT :\n";
         ft::map<int, char> m;
         m.insert(ft::pair<int, char>(2, 'b'));
         m.insert(ft::pair<int, char>(4, 'd'));
         m.insert(ft::pair<int, char>(1, 'a'));
         m.insert(ft::pair<int, char>(6, 'f'));
 
-        ft::map<int, char>::iterator it = m.begin();
-       
-        for (; it != m.end(); it++) { std::cout << it->first<< " ----> " << it->second << std::endl; }
-        std::cout << it->first<< " ----> " << it->second << std::endl;
-    }
-    std::cout << "\n";
-    {
-        std::map<int, char> m;
-        m.insert(std::pair<int, char>(2, 'b'));
-        m.insert(std::pair<int, char>(4, 'd'));
-        m.insert(std::pair<int, char>(1, 'a'));
-        m.insert(std::pair<int, char>(6, 'f'));
+        iterator itlow = m.lower_bound(3);
+        iterator itup = m.upper_bound(1);
+        std::cout << "lower bound " << itlow->first << std::endl;
+        std::cout << "upper bound " << itup->first << std::endl;
 
-        std::map<int, char>::iterator it = m.begin();
-       
-        for (; it != m.end(); it++) { std::cout << it->first<< " ----> " << it->second << std::endl; }
-        std::cout << it->first<< " ----> " << it->second << std::endl;
+        iterator it;
+        for (it = m.begin(); it != m.end(); it++) { std::cout << it->first<< " ----> " << it->second << std::endl; }
     }
+    
 
 }
