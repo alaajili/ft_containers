@@ -6,7 +6,7 @@
 /*   By: alaajili <alaajili@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 19:11:45 by alaajili          #+#    #+#             */
-/*   Updated: 2022/11/22 23:19:58 by alaajili         ###   ########.fr       */
+/*   Updated: 2022/11/23 01:13:20 by alaajili         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,7 +80,7 @@ public:
         iterator it = find(key);
         if (it != end())
             return ft::pair<iterator, bool>(it, false);
-        
+
         value_type* p = __alloc_.allocate(1);
         __alloc_.construct(p, val);
         nodeptr n = new Node<key_type, value_type>(key, *p);
@@ -231,54 +231,76 @@ public:
 
 
     iterator lower_bound( const key_type& k ) {
-        nodeptr t = __begin_;
+        nodeptr t = root;
+        nodeptr r = __null_;
 
-        while ( t != root ) {
-            if ( !compare(t->key, k) )
-                return iterator(t);
-            t = t->parent;
+        while ( t && t != __null_ ) {
+            if ( !compare(t->key, k) ) {
+                r = t;
+                t = t->left;
+            }
+            else
+                t = t->right;
         }
-        while ( t != __null_ ) {
-            if ( !compare(t->key, k) )
-                return iterator(t);
-            t = t->right;
-        }
-        return end();
+        return iterator(r);
     } // lower_bound
 
     const_iterator lower_bound( const key_type& k ) const {
         nodeptr t = root;
+        nodeptr r = __null_;
 
-        while ( t != __null_ ) {
-            if ( !compare(t->key, k) )
-                return const_iterator(t);
-            t = t->right;
+        while ( t && t != __null_ ) {
+            if ( !compare(t->key, k) ) {
+                r = t;
+                t = t->left;
+            }
+            else
+                t = t->right;
         }
-        return end();
+        return const_iterator(r);
     } // lower_bound const
 
     iterator upper_bound( const key_type& k ) {
         nodeptr t = root;
+        nodeptr = __null_;
 
-        while ( t != __null_ ) {
-            if ( compare(k, t->key) )
-                return iterator(t);
-            t = t->right;
+        while ( t && t != __null_ ) {
+            if ( compare(k, t->key) ) {
+                r = t;
+                t = t->left;
+            }
+            else
+                t = t->right;
         }
-        return end();
+        return iteratort(r);
     } // upper_bound
 
     const_iterator upper_bound( const key_type& k ) const {
         nodeptr t = root;
+        nodeptr = __null_;
 
-        while ( t != __null_ ) {
-            if ( compare(k, t->key) )
-                return const_iterator(t);
-            t = t->right;
+        while ( t && t != __null_ ) {
+            if ( compare(k, t->key) ) {
+                r = t;
+                t = t->left;
+            }
+            else
+                t = t->right;
         }
-        return end();
+        return const_iteratort(r);
     } // upper_bound const
 
+    ft::pair<iterator, iterator> equal_range( const key_type& k ) {
+        iterator low = lower_bound(k);
+        iterator up = up_bound(k);
+        return ft::pair<iterator, iterator>(low, up);
+    }
+
+    ft::pair<const_iterator, const_iterator> equal_range( const key_type& k ) const {
+        const_iterator low = lower_bound(k);
+        const_iterator up = up_bound(k);
+        return ft::pair<const_iterator, const_iterator>(low, up);
+    }
 
 
     bool empty() const { return (__size_ == 0); } // empty()

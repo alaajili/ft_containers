@@ -192,8 +192,8 @@ int main() {
         m.insert(std::pair<int, char>(1, 'a'));
         m.insert(std::pair<int, char>(6, 'f'));
         
-        iterator itlow = m.lower_bound(3);
-        iterator itup = m.upper_bound(1);
+        iterator itlow = m.lower_bound(0);
+        iterator itup = m.upper_bound(0);
         std::cout << "lower bound " << itlow->first << std::endl;
         std::cout << "upper bound " << itup->first << std::endl;
 
@@ -210,8 +210,8 @@ int main() {
         m.insert(ft::pair<int, char>(1, 'a'));
         m.insert(ft::pair<int, char>(6, 'f'));
 
-        iterator itlow = m.lower_bound(3);
-        iterator itup = m.upper_bound(1);
+        iterator itlow = m.lower_bound(0);
+        iterator itup = m.upper_bound(0);
         std::cout << "lower bound " << itlow->first << std::endl;
         std::cout << "upper bound " << itup->first << std::endl;
 
