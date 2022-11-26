@@ -6,15 +6,16 @@
 /*   By: alaajili <alaajili@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 19:11:45 by alaajili          #+#    #+#             */
-/*   Updated: 2022/11/23 01:13:20 by alaajili         ###   ########.fr       */
+/*   Updated: 2022/11/26 11:10:03 by alaajili         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef __TREE_H__
 #define __TREE_H__
 
-#include "iterator.hpp"
+#include "iterator.hpp" 
 #include "pair.hpp"
+#include <memory>
 
 enum colors { BLACK, RED };
 
@@ -28,9 +29,10 @@ struct Node {
     colors      color;
     
     Node() : parent(nullptr), left(nullptr), right(nullptr), color(BLACK) {}
-    
-    Node(const key_type& key, const value_type& val) :
+
+    Node( const key_type& key, const value_type& val ) :
         key(key), val(val), parent(nullptr), left(nullptr), right(nullptr), color(RED) {}
+    ~Node() {}
 };
 
 
@@ -38,29 +40,64 @@ template<class key_type, class value_type, class key_compare, class allocator_ty
 class Tree {
 
 public:
-    typedef Node<key_type, value_type>*                 nodeptr;
-    typedef value_type*                                 pointer;
-    typedef const value_type*                           const_pointer;
-    typedef value_type&                                 reference;
-    typedef const value_type&                           const_refernce;
-    typedef size_t                                      size_type;
-    typedef ft::TreeIterator<nodeptr, value_type>       iterator;
-    typedef ft::TreeIterator<nodeptr, const value_type> const_iterator;
-    typedef ft::reverse_iterator<iterator>              reverse_iterator;
-    typedef ft::reverse_iterator<const_iterator>        const_reverse_iterator;
+    typedef Node<key_type, value_type>                              node;
+    typedef node*                                                   nodeptr;
+    typedef value_type*                                             pointer;
+    typedef const value_type*                                       const_pointer;
+    typedef value_type&                                             reference;
+    typedef const value_type&                                       const_refernce;
+    typedef size_t                                                  size_type;
+    typedef ft::TreeIterator<nodeptr, value_type>                   iterator;
+    typedef ft::TreeIterator<nodeptr, const value_type>             const_iterator;
+    typedef ft::reverse_iterator<iterator>                          reverse_iterator;
+    typedef ft::reverse_iterator<const_iterator>                    const_reverse_iterator;
+    typedef typename allocator_type::template rebind<node>::other   allocator_node;
 
 //private:
     nodeptr         root;
     nodeptr         __null_;
-    allocator_type  __alloc_;
+    allocator_type  a;
+    allocator_node  __alloc_;
     key_compare     compare;
     nodeptr         __begin_;
     size_type       __size_;
 
+
 public:
-    Tree( const allocator_type& alloc = allocator_type() ) : __alloc_(alloc), compare(), __size_(0) {
-        __null_ = new Node<key_type, value_type>();
+    Tree( const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type() ) : a(alloc), __alloc_(), compare(comp), __size_(0) {
+        node tmp;
+        __null_ = __alloc_.allocate(1);
+        __alloc_.construct(__null_, tmp);
         root = __begin_ = __null_;
+    }
+
+    Tree( const Tree& t ) : a(t.a), __alloc_(t.__alloc_), compare(t.compare) , __size_(0) {
+        node tmp;
+        __null_ = __alloc_.allocate(1);
+        __alloc_.construct(__null_, tmp);
+        root = __begin_ = __null_;
+        for (const_iterator it = t.begin(); it != t.end(); ++it) {
+            nodeptr p = it.base();
+            insert(p->key, p->val);
+        }
+    }
+
+    Tree& operator=( const Tree& t ) {
+        clear();
+        a = t.a;
+        __alloc_ = t.__alloc_;
+        compare = t.compare;
+        for (const_iterator it = t.begin(); it != t.end(); ++it) {
+            nodeptr p = it.base();
+            insert(p->key, p->val);
+        }
+        return *this;
+    }
+
+    ~Tree() {
+        clear();
+        __alloc_.deallocate(__null_, 1);
+        __alloc_.destroy(__null_);
     }
     
     iterator begin() { return iterator(__begin_); }
@@ -81,9 +118,9 @@ public:
         if (it != end())
             return ft::pair<iterator, bool>(it, false);
 
-        value_type* p = __alloc_.allocate(1);
-        __alloc_.construct(p, val);
-        nodeptr n = new Node<key_type, value_type>(key, *p);
+        node tmp(key, val);
+        nodeptr n = __alloc_.allocate(1);
+        __alloc_.construct(n, tmp);
         if ( root == __null_ ) {
             __begin_ = n;
             n->right = __null_;
@@ -262,7 +299,7 @@ public:
 
     iterator upper_bound( const key_type& k ) {
         nodeptr t = root;
-        nodeptr = __null_;
+        nodeptr r = __null_;
 
         while ( t && t != __null_ ) {
             if ( compare(k, t->key) ) {
@@ -272,12 +309,12 @@ public:
             else
                 t = t->right;
         }
-        return iteratort(r);
+        return iterator(r);
     } // upper_bound
 
     const_iterator upper_bound( const key_type& k ) const {
         nodeptr t = root;
-        nodeptr = __null_;
+        nodeptr r = __null_;
 
         while ( t && t != __null_ ) {
             if ( compare(k, t->key) ) {
@@ -287,18 +324,18 @@ public:
             else
                 t = t->right;
         }
-        return const_iteratort(r);
+        return const_iterator(r);
     } // upper_bound const
 
     ft::pair<iterator, iterator> equal_range( const key_type& k ) {
         iterator low = lower_bound(k);
-        iterator up = up_bound(k);
+        iterator up = upper_bound(k);
         return ft::pair<iterator, iterator>(low, up);
     }
 
     ft::pair<const_iterator, const_iterator> equal_range( const key_type& k ) const {
         const_iterator low = lower_bound(k);
-        const_iterator up = up_bound(k);
+        const_iterator up = upper_bound(k);
         return ft::pair<const_iterator, const_iterator>(low, up);
     }
 
@@ -309,7 +346,40 @@ public:
 
     size_type max_size() const { return __alloc_.max_size(); } // max_size()
 
-    
+
+    void clear() {
+        if (empty())
+            return;
+        iterator t = begin();
+        for (; t != end(); ++t) {
+            nodeptr p = t.base();
+            __alloc_.destroy(t.base());
+            __alloc_.deallocate(p, 1);
+        }
+        __size_ = 0;
+        root = __begin_ = __null_;
+    }
+
+
+    key_compare key_comp() const { return compare; }
+
+    void swap( Tree& x ) {
+        std::swap(root, x.root);
+        std::swap(__alloc_, x.__alloc_);
+        std::swap(a, x.a);
+        std::swap(compare, x.compare);
+        std::swap(__size_, x.__size_);
+        std::swap(__begin_, x.__begin_);
+        std::swap(__null_, x.__null_);
+    }
+
+
+    allocator_type get_allocator() const { return a; }
+
+
+    void erase( iterator pos ) {
+        
+    }
 
 };
 

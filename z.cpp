@@ -183,23 +183,23 @@ int main() {
         // for (; it != tree.end(); it++) std::cout << *it << std::endl;
     }
 
-    {
-        typedef  std::map<int, char>::iterator iterator;
-        std::cout << "STD :\n";
-        std::map<int, char> m;
-        m.insert(std::pair<int, char>(2, 'b'));
-        m.insert(std::pair<int, char>(4, 'd'));
-        m.insert(std::pair<int, char>(1, 'a'));
-        m.insert(std::pair<int, char>(6, 'f'));
+    // {
+    //     typedef  std::map<int, char>::iterator iterator;
+    //     std::cout << "STD :\n";
+    //     std::map<int, char> m;
+    //     m.insert(std::pair<int, char>(2, 'b'));
+    //     m.insert(std::pair<int, char>(4, 'd'));
+    //     m.insert(std::pair<int, char>(1, 'a'));
+    //     m.insert(std::pair<int, char>(6, 'f'));
         
-        iterator itlow = m.lower_bound(0);
-        iterator itup = m.upper_bound(0);
-        std::cout << "lower bound " << itlow->first << std::endl;
-        std::cout << "upper bound " << itup->first << std::endl;
+    //     iterator itlow = m.lower_bound(0);
+    //     iterator itup = m.upper_bound(0);
+    //     std::cout << "lower bound " << itlow->first << std::endl;
+    //     std::cout << "upper bound " << itup->first << std::endl;
 
-        iterator it;
-        for (it = m.begin(); it != m.end(); it++) { std::cout << it->first<< " ----> " << it->second << std::endl; }
-    }
+    //     iterator it;
+    //     for (it = m.begin(); it != m.end(); it++) { std::cout << it->first<< " ----> " << it->second << std::endl; }
+    // }
     std::cout << "\n";
     {
         typedef  ft::map<int, char>::iterator iterator;
@@ -210,11 +210,18 @@ int main() {
         m.insert(ft::pair<int, char>(1, 'a'));
         m.insert(ft::pair<int, char>(6, 'f'));
 
-        iterator itlow = m.lower_bound(0);
-        iterator itup = m.upper_bound(0);
-        std::cout << "lower bound " << itlow->first << std::endl;
-        std::cout << "upper bound " << itup->first << std::endl;
-
+        // std::map<int, char> m2 = m;
+        // if (m == m2) {
+        //     std::cout << "HHH" << std::endl;
+        // }
+        m[2] = 'z';
+        // m2.clear();
+        // m2.insert(m.begin(), m.end());
+        // iterator itlow = m2.lower_bound(0);
+        // iterator itup = m2.upper_bound(0);
+        // std::cout << "lower bound " << itlow->first << std::endl;
+        // std::cout << "upper bound " << itup->first << std::endl;
+        // std::cout << m2.size() << std::endl;
         iterator it;
         for (it = m.begin(); it != m.end(); it++) { std::cout << it->first<< " ----> " << it->second << std::endl; }
     }

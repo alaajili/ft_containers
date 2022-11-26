@@ -6,7 +6,7 @@
 /*   By: alaajili <alaajili@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/20 20:07:43 by alaajili          #+#    #+#             */
-/*   Updated: 2022/11/21 00:31:46 by alaajili         ###   ########.fr       */
+/*   Updated: 2022/11/26 11:08:50 by alaajili         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #define __ITERATOR_H__
 
 #include <cstddef>
+#include <iterator>
 
 namespace ft {
 
@@ -41,11 +42,11 @@ struct iterator_traits {
 
 template<class T>
 struct iterator_traits<T*> {
-    typedef T                           value_type;
-    typedef ptrdiff_t                   difference_type;
-    typedef T*                          pointer;
-    typedef T&                          reference;
-    typedef std::random_access_iterator_tag  iterator_category;
+    typedef T                                   value_type;
+    typedef ptrdiff_t                           difference_type;
+    typedef T*                                  pointer;
+    typedef T&                                  reference;
+    typedef std::random_access_iterator_tag iterator_category;
 };
 
 template<class T>
@@ -162,7 +163,10 @@ reverse_iterator(const reverse_iterator<Iter>& rev_it) : __current_(rev_it.base(
 iterator_type base() const { return __current_; }
 
     /*      operators       */
-reference operator*() const { return *(__current_ - 1); }
+reference operator*() const {
+    iterator_type tmp = __current_;
+    return *(--tmp);
+}
 pointer operator->() const { return &(operator*()); }
 reference operator[](difference_type n) { return *(__current_ - n - 1); }
 
@@ -222,11 +226,12 @@ template<class InputIterator>
 
 
 
-template<class nodeptr, class value_type>
+template<class nodeptr, class value>
 class TreeIterator {
 
     
 public:
+    typedef value                                                       value_type;
     typedef typename ft::iterator_traits<value_type*>::difference_type  difference_type;
     typedef typename ft::iterator_traits<value_type*>::pointer          pointer;
     typedef typename ft::iterator_traits<value_type*>::reference        reference;
@@ -240,9 +245,14 @@ public:
     TreeIterator() : __node_(nullptr) {}
     explicit TreeIterator(const nodeptr& n) : __node_(n) {} // initialization
 
-    // template<class I>
-    // TreeIterator(const TreeIterator<I>& it) : __node_(it.base()) {} // copy
+    template<class T, class V>
+    TreeIterator(const TreeIterator<T,V>& it) : __node_(it.base()) {} // copy
 
+    template<class T, class V>
+    TreeIterator& operator=(const TreeIterator<T, V>& it) {
+        __node_ = it.base();
+        return *this;
+    }
 
 nodeptr base() const { return __node_; } // base
 
@@ -301,13 +311,14 @@ TreeIterator operator--(int) {
 
 
 };
-template<class T1, class T2, class V>
-bool operator==(const TreeIterator<T1, V>& l,
-                const TreeIterator<T2, V>& r) { return l.base() == r.base(); }
 
-template<class T1, class T2, class V>
-bool operator!=(const TreeIterator<T1, V>& l,
-                const TreeIterator<T2, V>& r) { return l.base() != r.base(); }
+template<class T1, class T2, class V1, class V2>
+bool operator==(const TreeIterator<T1, V1>& l,
+                const TreeIterator<T2, V2>& r) { return l.base() == r.base(); }
+
+template<class T1, class T2, class V1, class V2>
+bool operator!=(const TreeIterator<T1, V1>& l,
+                const TreeIterator<T2, V2>& r) { return l.base() != r.base(); }
 
 
 } // namespace ft
