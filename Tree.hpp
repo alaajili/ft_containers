@@ -6,7 +6,7 @@
 /*   By: alaajili <alaajili@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 19:11:45 by alaajili          #+#    #+#             */
-/*   Updated: 2022/11/30 15:51:05 by alaajili         ###   ########.fr       */
+/*   Updated: 2022/11/30 19:51:47 by alaajili         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ struct Node {
     Node*       right;
     colors      color;
     
-    Node() : parent(nullptr), left(nullptr), right(nullptr), color(BLACK) {}
+    Node() : key(), val(), parent(nullptr), left(nullptr), right(nullptr), color(BLACK) {}
 
     Node( const key_type& key, const value_type& val, Node* null ) :
         key(key), val(val), parent(nullptr), left(null), right(null), color(RED) {}
@@ -365,8 +365,8 @@ public:
         if (empty())
             return;
         iterator f = begin();
-        for (; f != end(); f = begin()) {
-            erase(f);
+        while ( f != end() ) {
+            erase(f++);
         }
         root = __begin_ = __null_;
     }
@@ -407,12 +407,11 @@ public:
         }
         else {
             y = getMaxValue(nd->left);
-            if (y->right == __null_)
-                std::cout << "y->right->key" << std::endl;
-            
             originColor = y->color;
             x = y->left;
-            if ( y->parent != nd ) {
+            if ( y->parent == nd )
+                x->parent = y;
+            else {
                 swapNodes(y, y->left);
                 y->left = nd->left;
                 y->left->parent = y;
@@ -424,7 +423,7 @@ public:
         }
         __alloc_.destroy(nd);
         __alloc_.deallocate(nd, 1);
-        if ( x && originColor == BLACK )
+        if ( originColor == BLACK )
             eraseFix(x);
         __size_--;
         if (__size_ == 0)
@@ -438,7 +437,7 @@ public:
 
     /*           helpers        */
     void swapNodes( nodeptr a, nodeptr b ) {
-        if ( !a->parent )
+        if ( a->parent == nullptr )
             root = b;
         else if ( a == a->parent->left )
             a->parent->left = b;

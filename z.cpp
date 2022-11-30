@@ -216,6 +216,7 @@ int main() {
         print_info(m);
         
         m.erase(2);
+        print_info(m);
         // m.erase(15);
         // print_info(m);
         // m.erase(15);
