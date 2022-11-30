@@ -6,7 +6,7 @@
 /*   By: alaajili <alaajili@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/20 20:07:43 by alaajili          #+#    #+#             */
-/*   Updated: 2022/11/26 11:08:50 by alaajili         ###   ########.fr       */
+/*   Updated: 2022/11/30 10:49:40 by alaajili         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 #include <cstddef>
 #include <iterator>
+#include <iostream>
 
 namespace ft {
 
@@ -238,23 +239,27 @@ public:
     typedef std::bidirectional_iterator_tag                             iterator_category;
 
 
-//private:
+private:
     nodeptr __node_;
+    nodeptr __null_;
 
 public:
-    TreeIterator() : __node_(nullptr) {}
-    explicit TreeIterator(const nodeptr& n) : __node_(n) {} // initialization
+    TreeIterator() : __node_(nullptr), __null_(nullptr) {}
+    explicit TreeIterator(const nodeptr& n, const nodeptr& null) : __node_(n), __null_(null) {} // initialization
 
     template<class T, class V>
-    TreeIterator(const TreeIterator<T,V>& it) : __node_(it.base()) {} // copy
+    TreeIterator(const TreeIterator<T,V>& it) : __node_(it.base()), __null_(it.getNull()) {} // copy
 
     template<class T, class V>
     TreeIterator& operator=(const TreeIterator<T, V>& it) {
         __node_ = it.base();
+        __null_ = it.getNull();
         return *this;
     }
 
 nodeptr base() const { return __node_; } // base
+
+nodeptr getNull() const { return __null_; }
 
     /*          operators           */
 reference operator*() const { return __node_->val; }
@@ -263,9 +268,11 @@ pointer operator->() const { return &(operator*()); }
 
 TreeIterator& operator++() {
     nodeptr p;
-    if (__node_->right ) {
+    if ( __node_ == __null_->parent )
+        __node_ = __null_;
+    else if ( __node_->right && __node_->right != __null_ ) {
         __node_ = __node_->right;
-        while ( __node_->left )
+        while ( __node_->left != __null_ )
             __node_ = __node_->left;
     }
     else {
@@ -287,9 +294,12 @@ TreeIterator operator++(int) {
 
 TreeIterator& operator--() {
     nodeptr p;
-    if ( __node_->left ) {
+    if (__node_ == __null_) {
+        __node_ = __node_->parent;
+    }
+    else if ( __node_->left != __null_ ) {
         __node_ = __node_->left;
-        while ( __node_->right )
+        while ( __node_->right != __null_ )
             __node_ = __node_->right;
     }
     else {

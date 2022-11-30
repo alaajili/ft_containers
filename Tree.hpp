@@ -6,7 +6,7 @@
 /*   By: alaajili <alaajili@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 19:11:45 by alaajili          #+#    #+#             */
-/*   Updated: 2022/11/26 11:10:03 by alaajili         ###   ########.fr       */
+/*   Updated: 2022/11/30 13:53:59 by alaajili         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include "iterator.hpp" 
 #include "pair.hpp"
 #include <memory>
+#include <iostream>
 
 enum colors { BLACK, RED };
 
@@ -30,8 +31,8 @@ struct Node {
     
     Node() : parent(nullptr), left(nullptr), right(nullptr), color(BLACK) {}
 
-    Node( const key_type& key, const value_type& val ) :
-        key(key), val(val), parent(nullptr), left(nullptr), right(nullptr), color(RED) {}
+    Node( const key_type& key, const value_type& val, Node* null ) :
+        key(key), val(val), parent(nullptr), left(null), right(null), color(RED) {}
     ~Node() {}
 };
 
@@ -96,15 +97,15 @@ public:
 
     ~Tree() {
         clear();
-        __alloc_.deallocate(__null_, 1);
         __alloc_.destroy(__null_);
+        __alloc_.deallocate(__null_, 1);
     }
     
-    iterator begin() { return iterator(__begin_); }
-    const_iterator begin() const { return const_iterator(__begin_); }
+    iterator begin() { return iterator(__begin_, __null_); }
+    const_iterator begin() const { return const_iterator(__begin_, __null_); }
     
-    iterator end() { return iterator(__null_); }
-    const_iterator end() const { return const_iterator(__null_); }
+    iterator end() { return iterator(__null_, __null_); }
+    const_iterator end() const { return const_iterator(__null_, __null_); }
 
     reverse_iterator rbegin() { return reverse_iterator(end()); }
     const_reverse_iterator rbegin() const { return const_reverse_iterator(end()); }
@@ -113,62 +114,77 @@ public:
     const_reverse_iterator rend() const { return const_reverse_iterator(begin()); }
 
 
+/*                          inseeeerrrrrrtttt                                       */
     ft::pair<iterator, bool> insert( const key_type& key, const value_type& val ) {
         iterator it = find(key);
         if (it != end())
             return ft::pair<iterator, bool>(it, false);
 
-        node tmp(key, val);
+        
+
+        node tmp(key, val, __null_);
         nodeptr n = __alloc_.allocate(1);
         __alloc_.construct(n, tmp);
-        if ( root == __null_ ) {
-            __begin_ = n;
-            n->right = __null_;
-        }
-        if ( compare(n->key, __begin_->key) )
-            __begin_ = n;
-        __size_++;
-        root = BstInsert(root, n);
-        insertFix(n);
-        return ft::pair<iterator, bool>(iterator(n), true);
-    }
 
-    nodeptr BstInsert( nodeptr r, nodeptr n ) {
-        if ( r == nullptr || r == __null_) {
-            if ( r == __null_ ) {
-                __null_->parent = n;
-                n->right = __null_;
-            }
-            return n;
+        nodeptr x = root;
+        nodeptr y = nullptr;
+        
+        while ( x != __null_ ) {
+            y = x;
+            if ( compare(n->key, x->key) )
+                x = x->left;
+            else
+                x = x->right;
         }
-        if ( compare(n->key, r->key) ) {
-            r->left = BstInsert(r->left, n);
-            r->left->parent = r;
+
+        n->parent = y;
+        if ( !y ) {
+            root = n;
+            __begin_ = n;
+            __null_->parent = n;
+        }
+        else if ( compare(n->key, y->key) ) {
+            y->left = n;
+            if ( y == __begin_ )
+                __begin_ = n;
         }
         else {
-            r->right = BstInsert(r->right, n);
-            r->right->parent = r;
+            y->right = n;
+            if ( y == __null_->parent )
+                __null_->parent = n;
         }
-        return r;
+
+        __size_++;
+
+        if ( !n->parent ) {
+            n->color = BLACK;
+            return ft::pair<iterator, bool>(iterator(n, __null_), true);
+        }
+        if ( !n->parent->parent )
+            return ft::pair<iterator, bool>(iterator(n, __null_), true);     
+
+        insertFix(n);
+        return ft::pair<iterator, bool>(iterator(n, __null_), true);
     }
 
     void insertFix( nodeptr n ) {
         nodeptr parent = nullptr;
         nodeptr grand_parent = nullptr;
+        nodeptr uncle = nullptr;
         while (n->parent && n->parent->color == RED) {
             parent = n->parent;
             grand_parent = parent->parent; 
-            if (grand_parent->left == parent) {
-                if (grand_parent->right && grand_parent->right->color == RED) {
-                    grand_parent->left->color = grand_parent->right->color = BLACK;
+            if ( grand_parent->left == parent ) {
+                uncle = grand_parent->right;
+                if (uncle->color == RED) {
+                    uncle->color = parent->color = BLACK;
                     grand_parent->color = RED;
                     n = grand_parent;
                 }
                 else {
-                    if (parent->right && parent->right == n) {
+                    if ( parent->right == n ) {
                         n = parent;
                         leftRotate(n);
-                        parent = n->parent;
                     }
                     parent->color = BLACK;
                     grand_parent->color = RED;
@@ -176,16 +192,16 @@ public:
                 }
             }
             else {
-                if (grand_parent->left && grand_parent->left->color == RED) {
-                        grand_parent->left->color = grand_parent->right->color = BLACK;
-                        grand_parent->color = RED;
-                        n = grand_parent;
+                uncle = grand_parent->left;
+                if ( uncle->color == RED) {
+                    uncle->color = parent->color = BLACK;
+                    grand_parent->color = RED;
+                    n = grand_parent;
                 }
                 else {
-                    if (parent->left && parent->left == n) {
+                    if ( parent->left == n ) {
                         n = parent;
                         rightRotate(n);
-                        parent = n->parent;
                     }
                     parent->color = BLACK;
                     grand_parent->color = RED;
@@ -200,7 +216,7 @@ public:
         nodeptr right = n->right;
 
         n->right = right->left;
-        if (n->right != nullptr)
+        if (n->right != __null_)
             n->right->parent = n;
         right->parent = n->parent;
         if (n->parent == nullptr)
@@ -217,7 +233,7 @@ public:
         nodeptr left = n->left;
 
         n->left = left->right;
-        if (n->left)
+        if (n->left != __null_)
             n->left->parent = n;
         left->parent = n->parent;
         if (n->parent == nullptr)
@@ -234,13 +250,13 @@ public:
     iterator find( const key_type& k ) {
         nodeptr t = root;
 
-        while ( t && t != __null_ ) {
+        while ( t != __null_ ) {
             if ( compare(k, t->key) )
                 t = t->left;
             else if ( compare(t->key, k) )
                 t = t->right;
             else
-                return iterator(t);
+                return iterator(t, __null_);
         }
         return this->end();
     } // find laydir lkhir
@@ -248,13 +264,13 @@ public:
     const_iterator find( const key_type& k ) const {
         nodeptr t = root;
         
-        while ( t && t != __null_ ) {
+        while ( t != __null_ ) {
             if ( compare(k, t->key) )
                 t = t->left;
             else if ( compare(t->key, k) )
                 t = t->right;
             else
-                return const_iterator(t);
+                return const_iterator(t, __null_);
         }
         return this->end();
     }
@@ -279,7 +295,7 @@ public:
             else
                 t = t->right;
         }
-        return iterator(r);
+        return iterator(r, __null_);
     } // lower_bound
 
     const_iterator lower_bound( const key_type& k ) const {
@@ -294,7 +310,7 @@ public:
             else
                 t = t->right;
         }
-        return const_iterator(r);
+        return const_iterator(r, __null_);
     } // lower_bound const
 
     iterator upper_bound( const key_type& k ) {
@@ -309,7 +325,7 @@ public:
             else
                 t = t->right;
         }
-        return iterator(r);
+        return iterator(r, __null_);
     } // upper_bound
 
     const_iterator upper_bound( const key_type& k ) const {
@@ -324,7 +340,7 @@ public:
             else
                 t = t->right;
         }
-        return const_iterator(r);
+        return const_iterator(r, __null_);
     } // upper_bound const
 
     ft::pair<iterator, iterator> equal_range( const key_type& k ) {
@@ -350,16 +366,12 @@ public:
     void clear() {
         if (empty())
             return;
-        iterator t = begin();
-        for (; t != end(); ++t) {
-            nodeptr p = t.base();
-            __alloc_.destroy(t.base());
-            __alloc_.deallocate(p, 1);
+        iterator f = begin();
+        for (; f != end(); f = begin()) {
+            erase(f);
         }
-        __size_ = 0;
         root = __begin_ = __null_;
     }
-
 
     key_compare key_comp() const { return compare; }
 
@@ -378,9 +390,132 @@ public:
 
 
     void erase( iterator pos ) {
+        nodeptr nd = pos.base();
+
+        if ( nd == __null_ ) { nd = nullptr; }
+
+        nodeptr x = nullptr;
+        nodeptr y = nullptr;
+
+        int originColor = nd->color;
         
+        if ( nd->right == __null_ && nd->left == __null_ ) {
+            if (nd->parent) {
+                nd->parent->left = __null_;
+                nd->parent->right = __null_;
+            }
+        }
+        else if ( nd->right == __null_) {
+            x = nd->left;
+            swapNodes(nd, nd->left);
+        }
+        else if ( nd->left == __null_ ) {
+            x = nd->right;
+            swapNodes(nd, nd->right);
+        }
+        else {
+            y = getMaxValue(nd->left);
+            originColor = y->color;
+            x = y->left;
+            if ( y->parent != nd ) {
+                swapNodes(y, y->left);
+                y->left = nd->left;
+                y->left->parent = y;
+            }
+            swapNodes(nd, y);
+            y->right = nd->right;
+            y->right->parent = y;
+            y->color = nd->color;
+        }
+        __alloc_.destroy(nd);
+        __alloc_.deallocate(nd, 1);
+        nd = nullptr;
+        __size_--;
+        if ( __size_ == 0 )
+            root = __begin_ = __null_;
+        if ( x && originColor == BLACK )
+            eraseFix(x);
     }
 
+
+    /*           helpers        */
+    void swapNodes( nodeptr a, nodeptr b ) {
+        if ( !a->parent )
+            root = b;
+        else if ( a == a->parent->left )
+            a->parent->left = b;
+        else
+            a->parent->right = b;
+        b->parent = a->parent;
+    }
+
+    nodeptr getMaxValue( nodeptr n ) {
+        while ( n->right != __null_ )
+            n = n->right;
+        return n;
+    }
+
+
+    void eraseFix( nodeptr x ) {
+        nodeptr n;
+        // std::cout << "HERE" << std::endl;
+        while ( x != root && x->color == BLACK ) {
+            if ( x == x->parent->left ) {
+                n = x->parent->right;
+                if ( n->color == RED ) {
+                    n->color = BLACK;
+                    x->parent->color = RED;
+                    leftRotate(x->parent);
+                    n = x->parent->right;
+                }
+                if ( n->left->color == BLACK && n->right->color == BLACK ) {
+                    n->color = RED;
+                    x = x->parent;
+                }
+                else if ( n->right->color == BLACK ) {
+                    n->left->color = BLACK;
+                    n->color = RED;
+                    rightRotate(n);
+                }
+                else {
+                    n->color = x->parent->color;
+                    x->parent->color = BLACK;
+                    n->right->color = BLACK;
+                    leftRotate(x->parent);
+                    x = root;
+                }
+            }
+            else {
+                n = x->parent->left;
+                if (n->color == RED) {
+                    n->color = BLACK;
+                    x->parent->color = RED;
+                    rightRotate(x->parent);
+                    n = x->parent->left;
+                }
+
+                if ( n->left->color == BLACK && n->right->color == BLACK ) {
+                    n->color = RED;
+                    x = x->parent;
+                }
+                else if ( n->left->color == BLACK ) {
+                    n->right->color = BLACK;
+                    n->color = RED;
+                    leftRotate(n);
+                    n = x->parent->left;
+                }
+                else {
+                    n->color = x->parent->color;
+                    x->parent->color = BLACK;
+                    n->left->color = BLACK;
+                    rightRotate(x->parent);
+                    x = root;
+                }
+            }
+        }
+        x->color = BLACK;
+    }
+    
 };
 
 

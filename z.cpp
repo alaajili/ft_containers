@@ -7,6 +7,7 @@
 #include <sstream>
 #include <climits>
 #include <map>
+#include <algorithm>
 
 #include "pair.hpp"
 #include "vector.hpp"
@@ -68,7 +69,7 @@ void test_char(void){
     // w.assign(77, '2');
     // info_ft(w);
 }
-
+void print_info(ft::map<int, char>& m);
 int main() {
     // test_char();
     // int arr[] = {2, 9, 5, 7};
@@ -200,21 +201,97 @@ int main() {
     //     iterator it;
     //     for (it = m.begin(); it != m.end(); it++) { std::cout << it->first<< " ----> " << it->second << std::endl; }
     // }
-    std::cout << "\n";
+    // std::cout << "\n";
     {
-        typedef  ft::map<int, char>::iterator iterator;
-        std::cout << "FT :\n";
-        ft::map<int, char> m;
-        m.insert(ft::pair<int, char>(2, 'b'));
-        m.insert(ft::pair<int, char>(4, 'd'));
-        m.insert(ft::pair<int, char>(1, 'a'));
-        m.insert(ft::pair<int, char>(6, 'f'));
+        // typedef  ft::map<int, char>::iterator iterator;
+        // typedef  ft::map<int, char>::reverse_iterator reverse_iterator;
 
+        ft::map<int, char> m;
+        m.insert(ft::pair<int, char>(21, 'b'));
+        m.insert(ft::pair<int, char>(41, 'd'));
+        m.insert(ft::pair<int, char>(11, 'a'));
+        m.insert(ft::pair<int, char>(31, 's'));
+        m.insert(ft::pair<int, char>(61, 'w'));
+        m.insert(ft::pair<int, char>(91, 'f'));
+        m.insert(ft::pair<int, char>(51, 'q'));
+        m.insert(ft::pair<int, char>(25, 'b'));
+        m.insert(ft::pair<int, char>(45, 'd'));
+        m.insert(ft::pair<int, char>(15, 'a'));
+        m.insert(ft::pair<int, char>(35, 's'));
+        m.insert(ft::pair<int, char>(65, 'w'));
+        m.insert(ft::pair<int, char>(95, 'f'));
+        m.insert(ft::pair<int, char>(55, 'q'));
+        m.insert(ft::pair<int, char>(28, 'b'));
+        m.insert(ft::pair<int, char>(48, 'd'));
+        m.insert(ft::pair<int, char>(18, 'a'));
+        m.insert(ft::pair<int, char>(38, 's'));
+        m.insert(ft::pair<int, char>(68, 'w'));
+        m.insert(ft::pair<int, char>(98, 'f'));
+        m.insert(ft::pair<int, char>(58, 'q'));
+
+        print_info(m);
+        m.erase(m.begin());
+        print_info(m);
+        // for (int i = 0; i < 2; i++) {
+        //     iterator it = m.begin();
+        //     std::advance(it, 2);
+        //     m.erase(it);
+        //     print_info(m);
+        // }
+        
+        
+        //iterator it = m.begin();
+        //m.clear();
         // std::map<int, char> m2 = m;
         // if (m == m2) {
         //     std::cout << "HHH" << std::endl;
         // }
-        m[2] = 'z';
+        //iterator it = m.find(11);
+        //iterator it = m.begin();
+        //m.erase(m.begin());
+        // --it;
+        // std::cout << m.size() << std::endl;
+        // std::cout << (--m.end())->first << std::endl;
+        // print_info(m);
+
+
+        // reverse_iterator rit = m.rbegin();
+        // std::cout << rit->first << std::endl;
+
+        // iterator it = m.end();
+        // --it;
+        // std::cout << it->first << std::endl;
+        //m.erase(rit->first);
+        // for (it = m.begin(); it != m.end(); it = m.begin()) {
+        //     m.erase(it);
+            
+        // }
+
+        // it = m.begin();
+        // std::cout << it->first << std::endl;
+        // iterator end = it;
+        // std::advance(it, 15);
+        // std::advance(end, 20);
+        // m.erase(it, end);
+        // std::advance(i, 1);
+        // m.erase(i);
+
+        // i = m.end();
+        // std::advance(i, -10);
+        // m.erase(i);
+        // print_info(m);
+
+        // i = m.end();
+        // std::advance(i, -19);
+        // m.erase(i);
+        // print_info(m);
+
+        // i = m.end();
+        // std::advance(i, -1);
+        // m.erase(i);
+        // print_info(m);
+        // std::cout << i.base()->left->key << std::endl;
+        // std::cout << i->first << " ------> " << i->second << std::endl;
         // m2.clear();
         // m2.insert(m.begin(), m.end());
         // iterator itlow = m2.lower_bound(0);
@@ -222,9 +299,16 @@ int main() {
         // std::cout << "lower bound " << itlow->first << std::endl;
         // std::cout << "upper bound " << itup->first << std::endl;
         // std::cout << m2.size() << std::endl;
-        iterator it;
-        for (it = m.begin(); it != m.end(); it++) { std::cout << it->first<< " ----> " << it->second << std::endl; }
+        // iterator it;
+        // for (it = m.begin(); it != m.end(); it++) { std::cout << it->first<< " ----> " << it->second << std::endl; }
     }
-    
 
+}
+void print_info(ft::map<int, char>& m){
+    typedef  ft::map<int, char>::iterator iterator;
+    iterator it;
+    for (it = m.begin(); it != m.end(); ++it){
+        std::cout << it->first << " >>>> " << it->second << std::endl;
+    }
+    std::cout <<"\n";
 }

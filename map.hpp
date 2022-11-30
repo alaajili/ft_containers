@@ -6,7 +6,7 @@
 /*   By: alaajili <alaajili@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/08 19:19:59 by alaajili          #+#    #+#             */
-/*   Updated: 2022/11/25 15:45:34 by alaajili         ###   ########.fr       */
+/*   Updated: 2022/11/28 16:05:06 by alaajili         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,6 +125,23 @@ void insert( InputIter first, InputIter last ) {
 }
 
 
+void erase( iterator pos ) { __t_.erase(pos); }
+
+void erase( iterator first, iterator last ) {
+    
+    while ( first != last )
+        erase(first++);
+}
+
+size_type erase( const key_type& k ) {
+  iterator pos = find(k);
+  if (pos == end())
+    return 0;
+  erase(pos);
+  return 1;
+}
+
+
 void swap( map& x ) { __t_.swap(x.__t_); }
 
 
@@ -169,6 +186,8 @@ allocator_type get_allocator() const { return __t_.get_allocator(); }
 
 };
 
+
+        /*        comparaison operators       */
 template <class Key, class T, class Comp, class Alloc>
   bool operator==( const map<Key,T,Comp,Alloc>& lhs, const map<Key,T,Comp,Alloc>& rhs ) {
     if (lhs.size() != rhs.size()) { return false; }
