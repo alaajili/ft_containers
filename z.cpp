@@ -207,31 +207,19 @@ int main() {
         // typedef  ft::map<int, char>::reverse_iterator reverse_iterator;
 
         ft::map<int, char> m;
-        m.insert(ft::pair<int, char>(21, 'b'));
-        m.insert(ft::pair<int, char>(41, 'd'));
-        m.insert(ft::pair<int, char>(11, 'a'));
-        m.insert(ft::pair<int, char>(31, 's'));
-        m.insert(ft::pair<int, char>(61, 'w'));
-        m.insert(ft::pair<int, char>(91, 'f'));
-        m.insert(ft::pair<int, char>(51, 'q'));
-        m.insert(ft::pair<int, char>(25, 'b'));
-        m.insert(ft::pair<int, char>(45, 'd'));
-        m.insert(ft::pair<int, char>(15, 'a'));
-        m.insert(ft::pair<int, char>(35, 's'));
-        m.insert(ft::pair<int, char>(65, 'w'));
-        m.insert(ft::pair<int, char>(95, 'f'));
-        m.insert(ft::pair<int, char>(55, 'q'));
-        m.insert(ft::pair<int, char>(28, 'b'));
-        m.insert(ft::pair<int, char>(48, 'd'));
-        m.insert(ft::pair<int, char>(18, 'a'));
-        m.insert(ft::pair<int, char>(38, 's'));
-        m.insert(ft::pair<int, char>(68, 'w'));
-        m.insert(ft::pair<int, char>(98, 'f'));
-        m.insert(ft::pair<int, char>(58, 'q'));
-
+        m[1] = 'a';
+        m[2] = 'b';
+        m[3] = 'c';
+        m[4] = 'd';
+        m[5] = 'e';
+        m[6] = 'f';
         print_info(m);
-        m.erase(m.begin());
-        print_info(m);
+        
+        m.erase(2);
+        // m.erase(15);
+        // print_info(m);
+        // m.erase(15);
+        // print_info(m);
         // for (int i = 0; i < 2; i++) {
         //     iterator it = m.begin();
         //     std::advance(it, 2);

@@ -6,7 +6,7 @@
 /*   By: alaajili <alaajili@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 19:11:45 by alaajili          #+#    #+#             */
-/*   Updated: 2022/11/30 13:53:59 by alaajili         ###   ########.fr       */
+/*   Updated: 2022/11/30 15:51:05 by alaajili         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -156,11 +156,11 @@ public:
 
         __size_++;
 
-        if ( !n->parent ) {
+        if ( n->parent == nullptr ) {
             n->color = BLACK;
             return ft::pair<iterator, bool>(iterator(n, __null_), true);
         }
-        if ( !n->parent->parent )
+        if ( n->parent->parent == nullptr )
             return ft::pair<iterator, bool>(iterator(n, __null_), true);     
 
         insertFix(n);
@@ -168,46 +168,44 @@ public:
     }
 
     void insertFix( nodeptr n ) {
-        nodeptr parent = nullptr;
-        nodeptr grand_parent = nullptr;
         nodeptr uncle = nullptr;
         while (n->parent && n->parent->color == RED) {
-            parent = n->parent;
-            grand_parent = parent->parent; 
-            if ( grand_parent->left == parent ) {
-                uncle = grand_parent->right;
+            if ( n->parent == n->parent->parent->left ) {
+                uncle = n->parent->parent->right;
                 if (uncle->color == RED) {
-                    uncle->color = parent->color = BLACK;
-                    grand_parent->color = RED;
-                    n = grand_parent;
+                    uncle->color = n->parent->color = BLACK;
+                    n->parent->parent->color = RED;
+                    n = n->parent->parent;
                 }
                 else {
-                    if ( parent->right == n ) {
-                        n = parent;
+                    if ( n->parent->right == n ) {
+                        n = n->parent;
                         leftRotate(n);
                     }
-                    parent->color = BLACK;
-                    grand_parent->color = RED;
-                    rightRotate(grand_parent);
+                    n->parent->color = BLACK;
+                    n->parent->parent->color = RED;
+                    rightRotate(n->parent->parent);
                 }
             }
             else {
-                uncle = grand_parent->left;
+                uncle = n->parent->parent->left;
                 if ( uncle->color == RED) {
-                    uncle->color = parent->color = BLACK;
-                    grand_parent->color = RED;
-                    n = grand_parent;
+                    uncle->color = n->parent->color = BLACK;
+                    n->parent->parent->color = RED;
+                    n = n->parent->parent;
                 }
                 else {
-                    if ( parent->left == n ) {
-                        n = parent;
+                    if ( n->parent->left == n ) {
+                        n = n->parent;
                         rightRotate(n);
                     }
-                    parent->color = BLACK;
-                    grand_parent->color = RED;
-                    leftRotate(grand_parent);
+                    n->parent->color = BLACK;
+                    n->parent->parent->color = RED;
+                    leftRotate(n->parent->parent);
                 }
             }
+            if ( n == root )
+                break ;
         }
         root->color = BLACK;
     } // fix insertion
@@ -399,13 +397,7 @@ public:
 
         int originColor = nd->color;
         
-        if ( nd->right == __null_ && nd->left == __null_ ) {
-            if (nd->parent) {
-                nd->parent->left = __null_;
-                nd->parent->right = __null_;
-            }
-        }
-        else if ( nd->right == __null_) {
+        if ( nd->right == __null_) {
             x = nd->left;
             swapNodes(nd, nd->left);
         }
@@ -415,6 +407,9 @@ public:
         }
         else {
             y = getMaxValue(nd->left);
+            if (y->right == __null_)
+                std::cout << "y->right->key" << std::endl;
+            
             originColor = y->color;
             x = y->left;
             if ( y->parent != nd ) {
@@ -429,12 +424,15 @@ public:
         }
         __alloc_.destroy(nd);
         __alloc_.deallocate(nd, 1);
-        nd = nullptr;
-        __size_--;
-        if ( __size_ == 0 )
-            root = __begin_ = __null_;
         if ( x && originColor == BLACK )
             eraseFix(x);
+        __size_--;
+        if (__size_ == 0)
+            root = __begin_ = __null_;
+        else {
+            __begin_ = getMinValue(root);
+            __null_->parent = getMaxValue(root);
+        }
     }
 
 
@@ -453,12 +451,18 @@ public:
         while ( n->right != __null_ )
             n = n->right;
         return n;
-    }
+    } // get max 
+
+    nodeptr getMinValue(nodeptr n) {
+        while (n->left != __null_)
+            n = n->left;
+        return n;
+    } // get min
 
 
     void eraseFix( nodeptr x ) {
         nodeptr n;
-        // std::cout << "HERE" << std::endl;
+
         while ( x != root && x->color == BLACK ) {
             if ( x == x->parent->left ) {
                 n = x->parent->right;
