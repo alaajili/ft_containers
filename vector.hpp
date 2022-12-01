@@ -6,7 +6,7 @@
 /*   By: alaajili <alaajili@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/06 14:45:53 by alaajili          #+#    #+#             */
-/*   Updated: 2022/11/16 23:12:57 by alaajili         ###   ########.fr       */
+/*   Updated: 2022/12/01 11:12:32 by alaajili         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -282,14 +282,14 @@ public:
       } //range_insert
 
     iterator erase(iterator pos) {
-        // std::copy(pos + 1, end(), pos);
-        // pop_back();
+
         pointer p = pos.base();
         for (;p != __end_ - 1; ++p) {
           *p = *(p + 1);
         }
         __alloc_.destroy(p);
         __end_--, __size_--;
+
         return pos;
     } // erase one element
 

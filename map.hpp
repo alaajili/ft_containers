@@ -6,7 +6,7 @@
 /*   By: alaajili <alaajili@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/08 19:19:59 by alaajili          #+#    #+#             */
-/*   Updated: 2022/11/28 16:05:06 by alaajili         ###   ########.fr       */
+/*   Updated: 2022/11/30 22:45:30 by alaajili         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,7 @@ public:
 }; // friend class value_compare
 
 
-map( const key_compare& comp = key_compare(),
+explicit map( const key_compare& comp = key_compare(),
      const allocator_type& alloc = allocator_type() ) : __t_(comp, alloc) {} // default constructor
 
 template<class InputIter>
@@ -145,6 +145,10 @@ size_type erase( const key_type& k ) {
 void swap( map& x ) { __t_.swap(x.__t_); }
 
 
+void clear() { __t_.clear(); }
+
+
+
     /*          OPERATIONS          */
 iterator find( const key_type& k ) { return __t_.find(k); }
 const_iterator find( const key_type& k ) const { return __t_.find(k); }
@@ -171,7 +175,6 @@ mapped_type& operator[]( const key_type& k ) {
 
 
 
-void clear() { __t_.clear(); }
 
 
 
