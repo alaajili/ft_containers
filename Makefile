@@ -1,5 +1,5 @@
-NAME = z
-SRCS = z.cpp 
+NAME = containers
+SRCS = main.cpp 
 OBJS = $(SRCS:.cpp=.o)
 CC = c++
 CPPFLAGS = -Wall -Werror -Wextra -std=c++98 -fsanitize=address -g3

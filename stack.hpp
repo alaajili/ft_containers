@@ -6,7 +6,7 @@
 /*   By: alaajili <alaajili@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/06 17:14:59 by alaajili          #+#    #+#             */
-/*   Updated: 2022/11/06 22:52:42 by alaajili         ###   ########.fr       */
+/*   Updated: 2022/12/02 14:33:21 by alaajili         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ public:
     typedef typename Container::reference       reference;
     typedef typename Container::const_reference const_reference;
 
-private:
+protected:
     container_type c;
 
 public:
