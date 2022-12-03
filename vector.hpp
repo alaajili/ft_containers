@@ -6,7 +6,7 @@
 /*   By: alaajili <alaajili@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/06 14:45:53 by alaajili          #+#    #+#             */
-/*   Updated: 2022/12/03 12:54:21 by alaajili         ###   ########.fr       */
+/*   Updated: 2022/12/03 13:28:06 by alaajili         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,15 @@ public:
     
     template <class InputIterator>
     vector( InputIterator first, InputIterator last,
-        typename enable_if<!is_integral<InputIterator>::value, InputIterator>::type = InputIterator(),
+        typename enable_if<std::__is_input_iterator<InputIterator>::value && !std::__is_forward_iterator<InputIterator>::value, InputIterator>::type = InputIterator(),
+        const allocator_type& alloc = allocator_type() ) : __alloc_(alloc) , __size_(0), __capacity_(0), __begin_(nullptr), __end_(nullptr) {
+                for (; first != last; ++first)
+                    push_back(*first);
+      } //range constructor
+    
+    template <class InputIterator>
+    vector( InputIterator first, InputIterator last,
+        typename enable_if<std::__is_input_iterator<InputIterator>::value && std::__is_forward_iterator<InputIterator>::value, InputIterator>::type = InputIterator(),
         const allocator_type& alloc = allocator_type() ) :
             __alloc_(alloc) , __size_(std::distance(first, last)), __capacity_(__size_), __begin_(nullptr), __end_(nullptr) {
                 __begin_ = __end_ = __alloc_.allocate(__capacity_);
