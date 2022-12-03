@@ -6,7 +6,7 @@
 /*   By: alaajili <alaajili@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/14 01:47:28 by alaajili          #+#    #+#             */
-/*   Updated: 2022/10/26 03:21:54 by alaajili         ###   ########.fr       */
+/*   Updated: 2022/12/02 15:21:09 by alaajili         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,8 +45,12 @@ template<> struct is_integral<long long> { static const bool value = true; };
 template<> struct is_integral<unsigned long long> { static const bool value = true; };
 
 
+template<class iterator_category>
+struct is_input_iterator_tag { static const bool value = true; };
 
-
+template<> struct is_input_iterator_tag<std::forward_iterator_tag> { static const bool value = false; };
+template<> struct is_input_iterator_tag<std::bidirectional_iterator_tag> { static const bool value = false; };
+template<> struct is_input_iterator_tag<std::random_access_iterator_tag> { static const bool value = false; };
 
 } // namespace ft
 

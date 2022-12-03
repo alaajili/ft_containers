@@ -6,7 +6,7 @@
 /*   By: alaajili <alaajili@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/06 14:45:53 by alaajili          #+#    #+#             */
-/*   Updated: 2022/12/02 14:18:37 by alaajili         ###   ########.fr       */
+/*   Updated: 2022/12/03 12:54:21 by alaajili         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,14 +62,15 @@ public:
     } // fill constructor
     
     template <class InputIterator>
-    vector(InputIterator first, InputIterator last,
+    vector( InputIterator first, InputIterator last,
         typename enable_if<!is_integral<InputIterator>::value, InputIterator>::type = InputIterator(),
-        const allocator_type& alloc = allocator_type()) :
+        const allocator_type& alloc = allocator_type() ) :
             __alloc_(alloc) , __size_(std::distance(first, last)), __capacity_(__size_), __begin_(nullptr), __end_(nullptr) {
                 __begin_ = __end_ = __alloc_.allocate(__capacity_);
                 for (; first != last; ++first, ++__end_)
                     __alloc_.construct(__end_, *first);
       } //range constructor
+
 
     vector (const vector& x) : __alloc_(x.__alloc_), __size_(x.__size_), __capacity_(x.__size_) {
         __begin_ = __alloc_.allocate(__size_);
