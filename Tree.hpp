@@ -6,7 +6,7 @@
 /*   By: alaajili <alaajili@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 19:11:45 by alaajili          #+#    #+#             */
-/*   Updated: 2022/11/30 19:51:47 by alaajili         ###   ########.fr       */
+/*   Updated: 2022/12/04 11:49:31 by alaajili         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -396,7 +396,7 @@ public:
         nodeptr y = nullptr;
 
         int originColor = nd->color;
-        
+
         if ( nd->right == __null_) {
             x = nd->left;
             swapNodes(nd, nd->left);

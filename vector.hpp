@@ -6,7 +6,7 @@
 /*   By: alaajili <alaajili@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/06 14:45:53 by alaajili          #+#    #+#             */
-/*   Updated: 2022/12/03 13:28:06 by alaajili         ###   ########.fr       */
+/*   Updated: 2022/12/04 12:24:20 by alaajili         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,8 +71,8 @@ public:
     
     template <class InputIterator>
     vector( InputIterator first, InputIterator last,
-        typename enable_if<std::__is_input_iterator<InputIterator>::value && std::__is_forward_iterator<InputIterator>::value, InputIterator>::type = InputIterator(),
-        const allocator_type& alloc = allocator_type() ) :
+        typename enable_if<std::__is_input_iterator<InputIterator>::value && std::__is_forward_iterator<InputIterator>::value,
+            InputIterator>::type = InputIterator(), const allocator_type& alloc = allocator_type() ) :
             __alloc_(alloc) , __size_(std::distance(first, last)), __capacity_(__size_), __begin_(nullptr), __end_(nullptr) {
                 __begin_ = __end_ = __alloc_.allocate(__capacity_);
                 for (; first != last; ++first, ++__end_)
@@ -179,9 +179,20 @@ public:
         /*      Modifiers       */
     template<class InputIterator>
     void assign(InputIterator first, InputIterator last,
-            typename enable_if<!is_integral<InputIterator>::value, InputIterator>::type = InputIterator()) {
+        typename enable_if<std::__is_input_iterator<InputIterator>::value && !std::__is_forward_iterator<InputIterator>::value,
+            InputIterator>::type = InputIterator() ) {
                 clear();
-                __size_ = last - first;
+                for (; first != last; ++first) {
+                    this->push_back(*first);
+                }
+      } // range_assign
+        
+    template<class InputIterator>
+    void assign(InputIterator first, InputIterator last,
+        typename enable_if<std::__is_input_iterator<InputIterator>::value && std::__is_forward_iterator<InputIterator>::value,
+            InputIterator>::type = InputIterator() ) {
+                clear();
+                __size_ = std::distance(first, last);
                 if ( __size_ > __capacity_ ) {
                     if ( __begin_ ) { __alloc_.deallocate(__begin_, __capacity_); }
                     __capacity_ = __size_;
@@ -257,9 +268,16 @@ public:
     void insert(iterator pos, InputIterator first, InputIterator last,
             typename enable_if<!is_integral<InputIterator>::value, InputIterator>::type = InputIterator()) {
                 difference_type diff = pos.base() - __begin_;
-                size_type n = std::distance(first, last);
+                // size_type n = std::distance(first, last);
+                vector x;
+                try {
+                    x.assign(first, last);
+                }
+                catch(...) {
+                    throw "exception";
+                }
+                size_type n = x.size();
                 if (n == 0) return;
-                vector x(first, last);
                 if (__size_ + n > __capacity_) {
                     if (__size_ + n <= __capacity_ * 2) { reserve(__capacity_*2); }
                     else { reserve(__size_ + n); }
@@ -292,11 +310,11 @@ public:
     } // erase elements
 
     void swap(vector& x) {
-        std::swap(__size_, x.__size_);
-        std::swap(__capacity_, x.__capacity_);
+        std::swap(x.__alloc_, __alloc_);
+        std::swap( x.__size_, __size_ );
+        std::swap(x.__capacity_, __capacity_);
         std::swap(__begin_, x.__begin_);
         std::swap(__end_, x.__end_);
-        std::swap(__alloc_, x.__alloc_);
     } // swap content
 
     void clear() {
